@@ -54,13 +54,13 @@ def score_answer(result, pattern, scoring_f):
     curr, score = '', 0
     for (pos, (c1, c2)) in enumerate(zip(result + sep, pattern + sep)):
         if c2 != sep and c1 != c2:
-            print(f"\nPATTERN MISMATCH AT POSITION {pos}!")
+            print(f"\nPATTERN MISMATCH AT POSITION {pos}!!!")
             return 0
         if c1 == sep:
             if curr in wordset:                    
                 score += scoring_f(curr)
             elif len(curr) > 1:
-                print(f"\nUNKNOWN WORD {curr} AT POSITION {pos}")
+                print(f"\nUNKNOWN WORD {curr} AT POSITION {pos}!!!")
                 return 0
             curr = ''
         else:
@@ -73,13 +73,13 @@ def play_one_round(pattern, scoring_f):
     try:
         result = sr.fill_words(pattern, words, scoring_f, minlen, maxlen)
     except Exception as e:
-        print(f"CRASH! {e}")
+        print(f"CRASH!!! {e}")
         return 0
     print(f"Result : {result} ", end ='')    
     if len(result) == len(pattern):
         score += score_answer(result, pattern, scoring_f)
     else:
-        print(f"\nRESULT AND PATTERN LENGTHS DIFFERENT!")
+        print(f"\nRESULT AND PATTERN LENGTHS DIFFERENT!!!")
     print(f"({score})")
     return score
     
