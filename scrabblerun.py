@@ -49,25 +49,6 @@ def create_pattern(n, rng, valuef):
             blanks = 0
         result += prev
     return result
-    
-def random_solvable_pattern2(n, rng, valuef):
-    sol = ''
-    while len(sol) < n:        
-        next_word = rng.choice(words)
-        if len(next_word) < 6:
-            sol += sep if len(sol) > 0 else ''
-            sol += next_word
-    result, blanks, letters = '', 0, 0
-    for c in sol:
-        if letters == 1 or c == sep or (blanks < maxblanks and rng.randint(0, 99) < 50):
-            result += sep
-            letters, blanks = 0, blanks + 1
-        else:
-            result += c
-            letters, blanks = letters + 1, 0
-    #if verbose:
-    #    print(f"Origin : '{sol}' ({score_answer(sol, sol, valuef)})")
-    return result
 
 def score_answer(result, pattern, scoring_f):
     curr, score = '', 0
