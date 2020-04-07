@@ -1,4 +1,4 @@
-# Version March 28, 2020
+# Version April 7, 2020
 # Ilkka Kokkarinen, ilkka.kokkarinen@gmail.com
 
 import scrabblerow as sr
@@ -8,7 +8,10 @@ from random import Random
 sep = '-'
 
 # Seed for the random number generator that produces the patterns.
-seed = 7373
+seed = 7777
+
+# Length of the random patterns.
+patlen = 50
 
 # Minimum and maximum length of words we consider.
 minlen, maxlen = 4, 30
@@ -19,16 +22,22 @@ rounds = 10
 # Maximum possible consecutive run of blanks in the pattern.
 maxblanks = 5
 
-# Scrabble letter values.
-letters = {'a':1, 'b':3, 'c':3, 'd':2, 'e':1, 'f':4, 'g':2, 'h':4, 'i':1,
+# The probability of the current run of blanks to continue.
+blankprob = 30
+
+# Scrabble letter values in the standard American English version.
+letter_values = {'a':1, 'b':3, 'c':3, 'd':2, 'e':1, 'f':4, 'g':2, 'h':4, 'i':1,
            'j':8, 'k':5, 'l':1, 'm':3, 'n':1, 'o':1, 'p':3, 'q':10, 'r':1,
            's':1, 't':1, 'u':1, 'v':4, 'w':4, 'x':8, 'y':4, 'z':10 }
+
+# Dictionary used to count the frequency of each letter.
+letter_counts = { c:0 for c in letter_values}
 
 # Word scoring function for scrabble.
 
 def scrabble_value(word):
     if minlen <= len(word) <= maxlen:
-        return sum(letters.get(c, 0) for c in word)
+        return sum(letter_values.get(c, 0) for c in word)
     else:
         return 0
 
@@ -40,12 +49,14 @@ def length_squared(word):
     
 def create_pattern(n, rng, valuef):
     prev, result, blanks = '', '', 0
+    letters = "".join(sorted([c for c in letter_counts]))
+    letter_freqs = [letter_counts[c] for c in letters]
     for i in range(n):
-        if blanks < maxblanks and (prev != sep or rng.randint(0, 99) < 50):
+        if blanks < maxblanks and (prev != sep or rng.randint(0, 99) < blankprob):
             prev = sep
             blanks += 1
         else:
-            prev = rng.choice('abcdefhijklmnopqrstuvwxyz')
+            prev = rng.choices(letters, letter_freqs, k=1)[0]
             blanks = 0
         result += prev
     return result
@@ -84,7 +95,7 @@ def play_one_round(pattern, scoring_f):
     return score
     
 def play():
-    print(f"scrabblerun with seed={seed} and rounds={rounds}.")
+    print(f"scrabblerun with seed={seed}, patlen={patlen} and rounds={rounds}.")
     scoring_f = lambda w: length_squared(w) + scrabble_value(w)
         
     # Just in case you want to try out some test cases of your own.
@@ -94,7 +105,7 @@ def play():
     
     total, rng = 0, Random(seed)
     for r in range(rounds):
-        pattern = create_pattern(30 + r // 5, rng, scoring_f)
+        pattern = create_pattern(patlen, rng, scoring_f)
         total += play_one_round(pattern, scoring_f)
     print(f"{total} {sr.author()} {sr.student_id()}")
 
@@ -104,4 +115,8 @@ words = [x for x in words if minlen <= len(x) <= maxlen]
 f.close()
 
 wordset = set(words)
+for word in words:
+    for c in word:
+        letter_counts[c] += 1
+
 play()
